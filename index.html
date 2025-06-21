@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webtrax - All in One Stop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Image Modals */
+        .website-dev-images {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .website-dev-images img {
+            max-width: 90%;
+            max-height: 80vh;
+            margin: 15px;
+            border: 2px solid var(--accent-gold);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            object-fit: contain;
+        }
+        
+        /* For the poster design modal with more images */
+        #posterDesignImages {
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+        
+        #posterDesignImages .poster-image {
+            max-height: 70vh;
+            margin: 0 auto;
+            display: none;
+        }
+        
+        #posterDesignImages .poster-image.active {
+            display: block;
+        }
+        
+        .poster-images-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .poster-image {
+            display: none;
+            max-width: 90%;
+            max-height: 70vh;
+            margin: 0 auto;
+            object-fit: contain;
+        }
+        
+        .poster-image.active {
+            display: block;
+        }
+        
+        /* Navigation buttons for image galleries */
+        .nav-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 2100;
+        }
+        
+        .nav-button {
+            background: var(--accent-gold);
+            color: var(--secondary-bg);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.8;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        
+        .nav-button:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .image-counter {
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--text-light);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .close-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-gold);
+            color: var(--secondary-bg);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2200;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .close-button:hover {
+            background: #c19660;
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        :root {
+            --primary-bg: #3a3a3a;
+            --secondary-bg: #2a2a2a;
+            --accent-bg: #4a4a4a;
+            --text-cream: #e8d5c4;
+            --text-light: #f5f0eb;
+            --accent-gold: #d4af8c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-cream);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Image Slider */
+        .slider-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .slider-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            filter: brightness(0.4) contrast(1.1);
+            z-index: 1;
+        }
+        
+        .slider-image.active {
+            opacity: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--secondary-bg);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-cream);
+            text-decoration: none;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-gold);
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--accent-gold), #c19660);
+            color: var(--secondary-bg);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 140, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 140, 0.1) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            letter-spacing: -2px;
+        }
+
+        .hero .subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            color: var(--accent-gold);
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .hero .tagline {
+            font-size: 1.2rem;
+            color: var(--text-cream);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 100px 0;
+            background: var(--secondary-bg);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-light);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        /* Card flip effect */
+        .service-card-container {
+            perspective: 1000px;
+            height: 300px;
+        }
+
+        .service-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        .service-card-container:hover .service-card {
+            transform: rotateY(180deg);
+        }
+
+        .service-card-front, .service-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem;
+            border: 1px solid rgba(212, 175, 140, 0.1);
+        }
+
+        .service-card-front {
+            background: var(--accent-bg);
+        }
+
+        .service-card-back {
+            background: var(--secondary-bg);
+            transform: rotateY(180deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .service-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-gold);
+            background: rgba(212, 175, 140, 0.1);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .service-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .service-card-front p, .service-card-back p {
+            color: var(--text-cream);
+            line-height: 1.7;
+        }
+        
+        .service-card-back h3 {
+            color: var(--accent-gold);
+            margin-bottom: 1.2rem;
+        }
+
+        /* About Section */
+        .about {
+            padding: 100px 0;
+            background: var(--primary-bg);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-light);
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-cream);
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            background: var(--accent-bg);
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-cream);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 100px 0;
+            background: var(--secondary-bg);
+        }
+
+        .contact-content {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-light);
+        }
+
+        .contact-form {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .contact-form input,
+        .contact-form select,
+        .contact-form textarea {
+            padding: 15px;
+            border: 1px solid rgba(212, 175, 140, 0.3);
+            border-radius: 8px;
+            background: var(--accent-bg);
+            color: var(--text-light);
+            font-family: inherit;
+        }
+
+        .contact-form input::placeholder,
+        .contact-form textarea::placeholder {
+            color: var(--text-cream);
+            opacity: 0.7;
+        }
+
+        .contact-form textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary-bg);
+            padding: 3rem 0 1rem;
+            text-align: center;
+            border-top: 1px solid rgba(212, 175, 140, 0.1);
+        }
+
+        .footer-content {
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--text-cream);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-gold);
+        }
+
+        .copyright {
+            color: var(--text-cream);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .hero h2 {
+                font-size: 4rem !important;
+                transform: scale(1.2) !important;
+            }
+
+            .hero .subtitle {
+                font-size: 1.3rem;
+            }
+
+            .about-content {
+                display: flex !important;
+                justify-content: center !important;
+            }
+            
+            .about-text {
+                padding: 2rem !important;
+                max-width: 100% !important;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr !important;
+                gap: 3rem !important;
+            }
+            
+            .service-card-container {
+                height: 350px;
+            }
+            
+            .service-card-front, .service-card-back {
+                padding: 2rem !important;
+            }
+
+            /* Adjust about section for mobile */
+            .about-text {
+                padding: 2rem !important;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">Webtrax</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="cta-button" onclick="document.getElementById('contact').scrollIntoView()">Get Started</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <!-- Image Slider -->
+            <div class="slider-container">
+                <img src="https://i.ibb.co/R4pV6B3N/Screenshot-2025-06-21-133044.png" alt="Webtrax Image 1" class="slider-image active">
+               
+            </div>
+            
+            <div class="container">
+                <div class="hero-content">
+                    <h2 style="font-size: 7.5rem; transform: scale(1); margin-bottom: 1.5rem;">Webtrax</h2>
+                    <p class="tagline">All in one stop</p>
+                    <button class="cta-button" onclick="document.getElementById('services').scrollIntoView()">Explore Services</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="services">
+            <div class="container">
+                <h2 class="section-title fade-in">Our Services</h2>
+                <p style="text-align: center; max-width: 700px; margin: 0 auto 2rem; color: var(--text-cream); font-size: 1.1rem;">
+                    We provide comprehensive digital solutions to elevate your brand and bring your vision to life with professional expertise.
+                </p>
+                <div class="services-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 900px; margin: 3rem auto;">
+                    <div class="service-card-container fade-in">
+                        <div class="service-card">
+                            <div class="service-card-front">
+                                <div class="service-icon">🌐</div>
+                                <h3>Website Development</h3>
+                                <p>Custom websites built with modern technologies and responsive design.</p>
+                            </div>
+                            <div class="service-card-back">
+                                <h3>Website Development</h3>
+                                <p>Our expert team creates stunning, functional websites that are optimized for performance and user experience. We focus on responsive design, SEO best practices, and conversion optimization.</p>
+                                <p style="margin-top: 10px; font-style: italic; color: var(--accent-gold);">Hover to flip back</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-card-container fade-in">
+                        <div class="service-card">
+                            <div class="service-card-front">
+                                <div class="service-icon">🎬</div>
+                                <h3>Video Editing</h3>
+                                <p>Professional video editing services to create compelling content.</p>
+                            </div>
+                            <div class="service-card-back">
+                                <h3>Video Editing</h3>
+                                <p>Transform your raw footage into polished, professional videos that captivate your audience. We handle color grading, transitions, effects, sound design, and more to tell your story effectively.</p>
+                                <p style="margin-top: 10px; font-style: italic; color: var(--accent-gold);">Hover to flip back</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-card-container fade-in">
+                        <div class="service-card">
+                            <div class="service-card-front">
+                                <div class="service-icon">📄</div>
+                                <h3>Poster Design</h3>
+                                <p>Eye-catching posters and marketing materials with visual impact.</p>
+                            </div>
+                            <div class="service-card-back">
+                                <h3>Poster Design</h3>
+                                <p>Stand out from the crowd with our professionally designed posters and marketing materials. We combine striking visuals, compelling copy, and strategic design to create materials that get noticed and drive action.</p>
+                                <p style="margin-top: 10px; font-style: italic; color: var(--accent-gold);">Hover to flip back</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-card-container fade-in">
+                        <div class="service-card">
+                            <div class="service-card-front">
+                                <div class="service-icon">🖼️</div>
+                                <h3>Thumbnail Design</h3>
+                                <p>Compelling thumbnails that increase click-through rates and engagement.</p>
+                            </div>
+                            <div class="service-card-back">
+                                <h3>Thumbnail Design</h3>
+                                <p>Boost your content's performance with eye-catching thumbnails that drive clicks. Our designs are optimized for various platforms and use psychological triggers to increase engagement and views for your videos and articles.</p>
+                                <p style="margin-top: 10px; font-style: italic; color: var(--accent-gold);">Hover to flip back</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2 class="section-title fade-in" style="margin-bottom: 3rem;">Why Choose Webtrax?</h2>
+                <div class="about-content fade-in" style="display: flex; justify-content: center; max-width: 1000px; margin: 0 auto;">
+                    <div class="about-text" style="background: var(--accent-bg); padding: 3rem; border-radius: 15px; border: 1px solid rgba(212, 175, 140, 0.2); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); max-width: 700px; text-align: center;">
+                        <h3 style="font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent-gold);">Our Commitment</h3>
+                        <p>We are your all-in-one creative partner, dedicated to transforming your ideas into stunning digital realities. Our team combines technical expertise with artistic vision to deliver exceptional results.</p>
+                        <p>From concept to completion, we work closely with our clients to ensure every project exceeds expectations and drives meaningful results for their business.</p>
+                        <p>Experience the difference of working with professionals who care about your success as much as you do.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <div class="contact-content fade-in">
+                    <h2>Let's Work Together</h2>
+                    <p style="color: var(--text-cream); margin-bottom: 2rem;">
+                        Ready to bring your vision to life? Get in touch with us and let's discuss how we can help elevate your brand.
+                    </p>
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <input type="text" placeholder="Your Name" required>
+                            <input type="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <select required>
+                                <option value="">Select Service</option>
+                                <option value="website-development">Website Development</option>
+                             
+                                <option value="video-editing">Video Editing</option>
+                                <option value="poster-design">Poster Design</option>
+                                <option value="thumbnail-design">Thumbnail Design</option>
+                               
+                                <option value="multiple">Multiple Services</option>
+                            </select>
+                            <input type="text" placeholder="Budget Range" required>
+                        </div>
+                        <textarea placeholder="Tell us about your project..." required></textarea>
+                        <button type="submit" class="cta-button" style="width: 100%; margin-top: 1rem;">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Website Development Images Modal -->
+    <div class="website-dev-images" id="websiteDevImages">
+        <button class="close-button" id="closeWebsiteImages" title="Close" onclick="closeWebsiteDevModal(); return false;">✕</button>
+        <div class="poster-images-container">
+            <img src="https://i.ibb.co/cS0xh2zf/img2.jpg" alt="Website Development Example 1" class="poster-image active" data-index="0">
+            <img src="https://i.ibb.co/YT7TcvzC/img1.jpg" alt="Website Development Example 2" class="poster-image" data-index="1">
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-button" id="prevWebsiteImage">←</button>
+            <div class="image-counter"><span id="currentWebsiteIndex">1</span>/<span id="totalWebsiteImages">2</span></div>
+            <button class="nav-button" id="nextWebsiteImage">→</button>
+        </div>
+    </div>
+    
+    <!-- Poster Design Images Modal -->
+    <div class="website-dev-images" id="posterDesignImages">
+        <button class="close-button" id="closePosterImages" title="Close" onclick="closePosterDesignModal(); return false;">✕</button>
+        <div class="poster-images-container">
+            <img src="https://i.ibb.co/jv7WQS3M/IMG-20250621-WA0005.jpg" alt="Poster Design Example 1" class="poster-image active" data-index="0">
+            <img src="https://i.ibb.co/jvHjy7rF/IMG-20250621-WA0006.jpg" alt="Poster Design Example 2" class="poster-image" data-index="1">
+            <img src="https://i.ibb.co/chYhfJyT/IMG-20250621-WA0007.jpg" alt="Poster Design Example 3" class="poster-image" data-index="2">
+            <img src="https://i.ibb.co/XxFM9Kg7/IMG-20250621-WA0008.jpg" alt="Poster Design Example 4" class="poster-image" data-index="3">
+            <img src="https://i.ibb.co/5q9jb7V/IMG-20250621-WA0009.jpg" alt="Poster Design Example 5" class="poster-image" data-index="4">
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-button" id="prevPosterImage">←</button>
+            <div class="image-counter"><span id="posterCurrentIndex">1</span>/<span id="posterTotalImages">5</span></div>
+            <button class="nav-button" id="nextPosterImage">→</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Webtrax</div>
+                <div class="footer-links">
+                    <a href="#home">Home</a>
+                    <a href="#services">Services</a>
+                    <a href="#about">About</a>
+                    <a href="#contact">Contact</a>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 Webtrax. All rights reserved. | Your all-in-one creative partner.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Form submission handler
+        document.querySelector('.contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for your message! We\'ll get back to you soon.');
+            this.reset();
+        });
+
+        // Smooth header background on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(42, 42, 42, 0.95)';
+            } else {
+                header.style.background = 'var(--secondary-bg)';
+            }
+        });
+        
+        // Image Slider Functionality
+        const sliderImages = document.querySelectorAll('.slider-image');
+        let currentImageIndex = 0;
+        
+        function changeSliderImage() {
+            // Remove active class from all images
+            sliderImages.forEach(img => img.classList.remove('active'));
+            
+            // Move to next image
+            currentImageIndex = (currentImageIndex + 1) % sliderImages.length;
+            
+            // Add active class to current image
+            sliderImages[currentImageIndex].classList.add('active');
+        }
+        
+        // Change image every 5 seconds
+        setInterval(changeSliderImage, 5000);
+        
+        // Add hover effect to about section box
+        const aboutBox = document.querySelector('.about-text');
+        if (aboutBox) {
+            aboutBox.addEventListener('mouseenter', () => {
+                aboutBox.style.transform = 'translateY(-10px)';
+                aboutBox.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.4)';
+                aboutBox.style.borderColor = 'rgba(212, 175, 140, 0.4)';
+            });
+            
+            aboutBox.addEventListener('mouseleave', () => {
+                aboutBox.style.transform = 'translateY(0)';
+                aboutBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.2)';
+                aboutBox.style.borderColor = 'rgba(212, 175, 140, 0.2)';
+            });
+        }
+        
+        // Add touch support for card flipping on mobile devices
+        const serviceCards = document.querySelectorAll('.service-card');
+        serviceCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Check which service card this is
+                const cardTitle = this.querySelector('h3').textContent;
+                
+                if (cardTitle === 'Website Development') {
+                    // If it's already flipped, show the website development images
+                    if (this.style.transform === 'rotateY(180deg)') {
+                        openWebsiteDevModal();
+                    } else {
+                        // Just flip the card if it's not already flipped
+                        this.style.transform = 'rotateY(180deg)';
+                    }
+                } else if (cardTitle === 'Poster Design') {
+                    // If it's already flipped, show the poster design images
+                    if (this.style.transform === 'rotateY(180deg)') {
+                        openPosterDesignModal();
+                    } else {
+                        // Just flip the card if it's not already flipped
+                        this.style.transform = 'rotateY(180deg)';
+                    }
+                } else {
+                    // For other cards, just toggle the flip
+                    if (this.style.transform === 'rotateY(180deg)') {
+                        this.style.transform = 'rotateY(0deg)';
+                    } else {
+                        this.style.transform = 'rotateY(180deg)';
+                    }
+                }
+            });
+        });
+        
+        // Website image navigation
+        let currentWebsiteIndex = 0;
+        const totalWebsiteImages = document.querySelectorAll('#websiteDevImages .poster-image').length;
+        
+        function updateWebsiteImageCounter() {
+            document.getElementById('currentWebsiteIndex').textContent = currentWebsiteIndex + 1;
+            document.getElementById('totalWebsiteImages').textContent = totalWebsiteImages;
+        }
+        
+        function showWebsiteImage(index) {
+            // Hide all images
+            document.querySelectorAll('#websiteDevImages .poster-image').forEach(img => {
+                img.classList.remove('active');
+            });
+            
+            // Show the selected image
+            document.querySelector(`#websiteDevImages .poster-image[data-index="${index}"]`).classList.add('active');
+            
+            // Update counter
+            updateWebsiteImageCounter();
+        }
+        
+        function navigateWebsiteImage(direction) {
+            currentWebsiteIndex = (currentWebsiteIndex + direction + totalWebsiteImages) % totalWebsiteImages;
+            showWebsiteImage(currentWebsiteIndex);
+        }
+        
+        // Function to open website development images modal
+        function openWebsiteDevModal() {
+            document.getElementById('websiteDevImages').style.display = 'flex';
+            currentWebsiteIndex = 0;
+            showWebsiteImage(currentWebsiteIndex);
+        }
+        
+        // Function to close website development images modal
+        function closeWebsiteDevModal() {
+            document.getElementById('websiteDevImages').style.display = 'none';
+            
+            // Reset the Website Development card
+            const allCards = document.querySelectorAll('.service-card');
+            allCards.forEach(card => {
+                const cardTitle = card.querySelector('h3').textContent;
+                if (cardTitle === 'Website Development') {
+                    card.style.transform = 'rotateY(0deg)';
+                }
+            });
+        }
+        
+        // Function to close poster design images modal
+        function closePosterDesignModal() {
+            document.getElementById('posterDesignImages').style.display = 'none';
+            
+            // Reset the Poster Design card
+            const allCards = document.querySelectorAll('.service-card');
+            allCards.forEach(card => {
+                const cardTitle = card.querySelector('h3').textContent;
+                if (cardTitle === 'Poster Design') {
+                    card.style.transform = 'rotateY(0deg)';
+                }
+            });
+        }
+        
+        // Close buttons for modals - direct event listeners
+        const closeWebsiteBtn = document.getElementById('closeWebsiteImages');
+        if (closeWebsiteBtn) {
+            closeWebsiteBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeWebsiteDevModal();
+                return false;
+            };
+        }
+        
+        const closePosterBtn = document.getElementById('closePosterImages');
+        if (closePosterBtn) {
+            closePosterBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closePosterDesignModal();
+                return false;
+            };
+        }
+        
+        // Close modals when clicking on the background (but not on images)
+        document.getElementById('websiteDevImages').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWebsiteDevModal();
+            }
+        });
+        
+        document.getElementById('posterDesignImages').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePosterDesignModal();
+            }
+        });
+        
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('websiteDevImages').style.display === 'flex') {
+                    closeWebsiteDevModal();
+                }
+                if (document.getElementById('posterDesignImages').style.display === 'flex') {
+                    closePosterDesignModal();
+                }
+            }
+            
+            // Navigate poster images with arrow keys
+            if (document.getElementById('posterDesignImages').style.display === 'flex') {
+                if (e.key === 'ArrowLeft') {
+                    navigatePosterImage(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigatePosterImage(1);
+                }
+            }
+            
+            // Navigate website images with arrow keys
+            if (document.getElementById('websiteDevImages').style.display === 'flex') {
+                if (e.key === 'ArrowLeft') {
+                    navigateWebsiteImage(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateWebsiteImage(1);
+                }
+            }
+        });
+        
+        // Poster image navigation
+        let currentPosterIndex = 0;
+        const totalPosterImages = document.querySelectorAll('#posterDesignImages .poster-image').length;
+        
+        function updatePosterImageCounter() {
+            document.getElementById('posterCurrentIndex').textContent = (currentPosterIndex + 1);
+            document.getElementById('posterTotalImages').textContent = totalPosterImages;
+        }
+        
+        function showPosterImage(index) {
+            // Hide all images in the poster design modal
+            document.querySelectorAll('#posterDesignImages .poster-image').forEach(img => {
+                img.classList.remove('active');
+            });
+            
+            // Show the selected image
+            document.querySelector(`#posterDesignImages .poster-image[data-index="${index}"]`).classList.add('active');
+            
+            // Update counter
+            updatePosterImageCounter();
+        }
+        
+        function navigatePosterImage(direction) {
+            currentPosterIndex = (currentPosterIndex + direction + totalPosterImages) % totalPosterImages;
+            showPosterImage(currentPosterIndex);
+        }
+        
+        // Initialize poster navigation buttons
+        document.getElementById('prevPosterImage').addEventListener('click', function() {
+            navigatePosterImage(-1);
+        });
+        
+        document.getElementById('nextPosterImage').addEventListener('click', function() {
+            navigatePosterImage(1);
+        });
+        
+        // Initialize website navigation buttons
+        document.getElementById('prevWebsiteImage').addEventListener('click', function() {
+            navigateWebsiteImage(-1);
+        });
+        
+        document.getElementById('nextWebsiteImage').addEventListener('click', function() {
+            navigateWebsiteImage(1);
+        });
+        
+        // Reset poster index when opening the modal
+        function openPosterDesignModal() {
+            document.getElementById('posterDesignImages').style.display = 'flex';
+            currentPosterIndex = 0;
+            
+            // Hide all poster images first
+            document.querySelectorAll('#posterDesignImages .poster-image').forEach(img => {
+                img.classList.remove('active');
+            });
+            
+            // Show the first image
+            document.querySelector('#posterDesignImages .poster-image[data-index="0"]').classList.add('active');
+            
+            // Update counter
+            updatePosterImageCounter();
+        }
+    </script>
+</body>
+</html>
